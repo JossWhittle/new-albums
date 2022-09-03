@@ -1,19 +1,14 @@
 import unittest
 
-from build_description import build_description
+from newalbums.build_description import build_description
 
 
 class TestBuildDescription(unittest.TestCase):
     def setUp(self) -> None:
         self.artists = [{'name': 'Geezer'}]
-        self.accepted_albums = [{
-            'artists': self.artists,
-            'name': 'The Testing Album'
-        }, {
-            'artists': self.artists,
-            'name': 'The Second Testing Album'
-        }
-        ]
+        self.accepted_albums = [
+            { 'artists': self.artists, 'name': 'The Testing Album' },
+            { 'artists': self.artists, 'name': 'The Second Testing Album' }]
         return super().setUp()
 
     def tearDown(self) -> None:

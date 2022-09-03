@@ -1,8 +1,7 @@
-import os
 import logging
 from json.decoder import JSONDecodeError
 
-from config import *
+from src.config import *
 import spotipy
 from spotipy import util
 

@@ -31,7 +31,7 @@ class TestSpotify(unittest.TestCase):
 
     @mock.patch.object(spotipy.util, 'prompt_for_user_token')
     def testFailedCache(self, mock_prompt):
-        from services.get_spotify import get_spotify
+        from newalbums.services.get_spotify import get_spotify
 
         mock_prompt.side_effect = [AttributeError, 'TestToken']
         self.mock_spotify.return_value = spotipy.client.Spotify
@@ -42,7 +42,7 @@ class TestSpotify(unittest.TestCase):
     
     @mock.patch.object(spotipy.util, 'prompt_for_user_token')
     def testRaiseValueError(self, mock_prompt):
-        from services.get_spotify import get_spotify
+        from newalbums.services.get_spotify import get_spotify
         
         mock_prompt.return_value = None
 
