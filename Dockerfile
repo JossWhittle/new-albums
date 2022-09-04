@@ -22,5 +22,8 @@ COPY . /usr/local/new-albums
 
 # Install the application
 RUN pip install --no-cache-dir --upgrade -e . && \
-    python -m pytest tests && \
     rm -rf /root/.cache/* && rm -rf /tmp/*
+
+# Test the application
+# python -m python -m newalbums.update -p $NEW_ALBUMS_PLAYLIST_ID -a 20 -v
+ENTRYPOINT ["python", "-m", "newalbums.update"]
