@@ -1,58 +1,81 @@
-# New Albums
+# Spotify New Albums Bot
 
-A python script to update a Spotify playlist every day with all the songs from any significant new albums. It shouldn't include single-only releases. Anything older than a month should be deleted.
+Update a Spotify Playlist to contain new released albums from a given set of countries new-releases feeds with filters for genre, artists, and playlist length.
 
-## Installation
+---
 
-Before you can run the New Albums script, there are some pre-requisites the script assumes.
+### Setup
 
-### Spotify Developer Account
-
-The script will need a Spotify Client Id and Client Secret to interact with Spotify's Web API.
-
-Register for a [developer account](https://developer.spotify.com) on Spotify. After registering, create a new app. Once you create a new app, a Client Id and Client Secret will be generated. You will need these in later steps.
-
-Additionally, the New Albums script uses an Authorization Code Flow. Due to this, you will need to set a redirect URL for your app. To add a redirect URL, open the app's settings. Note: The New Albums script is only intended to run locally, on your machine, so add a redirect link to `http://localhost:8080`.
-
-### Spotify Playlist Id
-
-The script will need the unique ID for one of your playlists. To get the ID for a playlist, in Spotify, right-click on the playlist > Share > Copy Share Link. The link will contain the playlist ID. It is the string between `playlist/` and `?si=`.
-
-### Environment Variables
-
-FIRST SET UP ENVIRONMENT VARIABLES ON YOUR COMPUTER, [SEE HERE FOR INSTRUCTIONS](https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10).
-
-To set all 4 in a one-liner on Windows:
-
-```cmd
-set SPOTIFY_CLIENT_ID=xxx && set SPOTIFY_CLIENT_SECRET=xxx && set SPOTIFY_REDIRECT_URI=http://localhost:8080 && set NEW_ALBUMS_PLAYLIST_ID=xxx && set SPOTIFY_USER=xxx
+Export the following three environment variables and configure your Spotify app (on the management dashboard) to use that redirect URL. 
+It does not actually need to be a publicly reachable URL but it does need to match what you use in the environment variable.
+```
+export SPOTIPY_CLIENT_ID=
+export SPOTIPY_CLIENT_SECRET=
+export SPOTIPY_REDIRECT_URI=http://localhost:8888/callback
 ```
 
-To view all currently set environment variables, use the command `set`.
+---
 
-### Set which genres to Reject
-Create your own `fiat.py` file inside of the data folder. This is what the script will use to determine which genres to reject from your playlist. You can use the fiat_example as a template.
-The `fiat.py` file will be ignored by git.
-The script will reject any album on which the primary artist's first genre matches any of the genres in your reject list. For example, if you have "dance pop" in your reject list, then the script will reject Beyoncé's 'RENAISSANCE' album, because her first genre is dance pop. (Her genres are ['dance pop', 'pop', 'r&b']).
+### Examples
 
-## Running
+```
+python -m newalbums.update --help
 
-Once you have completed all the installation steps, run New Albums script by running `py setup.py`.
+usage: update.py [-h] [-y CONFIG] [-Y DUMP_CONFIG] [-p PLAYLIST] [-c [COUNTRY ...]] [-C N_PER_COUNTRY] [-g [LIMIT_GENRES ...]] [-G [EXCLUDE_GENRES ...]] [-a LIMIT_N_ALBUMS] [-t LIMIT_N_TRACKS] [-v] [-u]
 
-### Filter by country
+Update a Spotify Playlist.
 
-By default, the script will filter by US. To filter by a specific country, you can pass the `--country` flag followed by the country ISO code, e.g. `py setup.py --country JP`
+options:
+  -h, --help            show this help message and exit
+  -y CONFIG, --config CONFIG
+                        YAML config file.
+  -Y DUMP_CONFIG, --dump-config DUMP_CONFIG
+                        Dump YAML config to file.
+  -p PLAYLIST, --playlist PLAYLIST
+                        Playlist ID or URI.
+  -c [COUNTRY ...], --country [COUNTRY ...]
+                        List of country codes.
+  -C N_PER_COUNTRY, --n-per-country N_PER_COUNTRY
+                        Number of new released albums to sample from each country code.
+  -g [LIMIT_GENRES ...], --limit-genres [LIMIT_GENRES ...]
+                        Filter albums to a specific list of genres.
+  -G [EXCLUDE_GENRES ...], --exclude-genres [EXCLUDE_GENRES ...]
+                        Filter albums to exclude a specific list of genres.
+  -a LIMIT_N_ALBUMS, --limit-n-albums LIMIT_N_ALBUMS
+                        Limit the playlist to the N most recent albums matching the other criteria. Default no limit.
+  -t LIMIT_N_TRACKS, --limit-n-tracks LIMIT_N_TRACKS
+                        Limit the playlist to the tracks from the N most recent albums matching the other criteria, rounded up to the nearest full album. Default no limit.
+  -v, --verbose         Set the logging level.
+  -u, --update          Apply the changes to the playlist.
+```
 
-**Options**:
-- `py setup.py`: filters by US
-- `py setup.py --country GB`: filter by GB
-- `py setup.py --country list`: list all available Spotify country codes. The script then prompts you to type an ISO code.
-- `py setup.py --country all`: include all country codes (worldwide)
+```
+python -m newalbums.update -p $NEW_ALBUMS_PLAYLIST_ID -c GB FR -a 10 -t 200 -v --update
 
-`-c` can also be used as an abbreviation for `--country`, e.g. `py setup.py -c all`
-
-### Filter by top genres
-
-By default, the script will not filter by top genres. To enable this filter, you can pass the `--top-genres` flag, e.g. `py setup.py --top-genres`
-
-`-g` can also be used as an abbreviation for `--top-genres`, e.g. `py setup.py -g`
+2022-09-04 14:50:41,171 |       INFO | CONFIG | config: null
+2022-09-04 14:50:41,172 |       INFO | CONFIG | country:
+2022-09-04 14:50:41,172 |       INFO | CONFIG | - GB
+2022-09-04 14:50:41,172 |       INFO | CONFIG | - FR
+2022-09-04 14:50:41,172 |       INFO | CONFIG | dump_config: null
+2022-09-04 14:50:41,172 |       INFO | CONFIG | exclude_genres: []
+2022-09-04 14:50:41,172 |       INFO | CONFIG | limit_genres: []
+2022-09-04 14:50:41,172 |       INFO | CONFIG | limit_n_albums: 10
+2022-09-04 14:50:41,172 |       INFO | CONFIG | limit_n_tracks: 200
+2022-09-04 14:50:41,172 |       INFO | CONFIG | n_per_country: 100
+2022-09-04 14:50:41,172 |       INFO | CONFIG | playlist: scnalidvaefwq3
+2022-09-04 14:50:41,172 |       INFO | CONFIG | update: 1
+2022-09-04 14:50:41,172 |       INFO | CONFIG | verbose: 1
+2022-09-04 14:50:41,172 |       INFO | Logging into Spotify using scope:
+2022-09-04 14:50:41,172 |       INFO | SCOPES | - playlist-read-private
+2022-09-04 14:50:41,172 |       INFO | SCOPES | - playlist-read-collaborative
+2022-09-04 14:50:41,172 |       INFO | SCOPES | - playlist-modify-public
+2022-09-04 14:50:41,172 |       INFO | SCOPES | - playlist-modify-private
+2022-09-04 14:50:41,172 |       INFO | Login succeeded.
+2022-09-04 14:50:41,172 |       INFO | From each country code, draw the 100 most recent albums that match the genre filters, and remove duplicates.
+2022-09-04 14:50:41,172 |       INFO | Drop duplicated albums by album and artist name to avoid explicit vs radio edit duplicates.
+2022-09-04 14:50:41,172 |       INFO | Sort albums by most recent release date.
+2022-09-04 14:50:42,483 |       INFO | Fetch the tracks for each album.
+2022-09-04 14:50:42,483 |       INFO | Filter the first 10 albums.
+2022-09-04 14:50:42,483 |       INFO | Filter the first 200 tracks.
+...
+```
